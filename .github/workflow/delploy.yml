@@ -1,0 +1,42 @@
+name: Deploy all services to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy all services via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            # Setup repo
+            if [ ! -d ~/multi-service-app ]; then
+              git clone https://github.com/${{ github.repository }} ~/multi-service-app
+            fi
+            cd ~/multi-service-app
+            git pull origin main
+
+            # Backend
+            docker stop bun-backend || true
+            docker rm bun-backend || true
+            docker build -t bun-backend -f Dockerfile.backend .
+            docker run -d -p 8080:8080 --name bun-backend bun-backend
+
+            # Frontend
+            docker stop bun-frontend || true
+            docker rm bun-frontend || true
+            docker build -t bun-frontend -f Dockerfile.frontend .
+            docker run -d -p 3000:3000 --name bun-frontend bun-frontend
+
+            # WebSocket
+            docker stop bun-websocket || true
+            docker rm bun-websocket || true
+            docker build -t bun-websocket -f Dockerfile.websocket .
+            docker run -d -p 4000:4000 --name bun-websocket bun-websocket
