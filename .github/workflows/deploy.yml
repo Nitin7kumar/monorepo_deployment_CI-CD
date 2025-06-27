@@ -44,5 +44,5 @@ jobs:
             # =======================
             docker stop bun-websocket || true
             docker rm bun-websocket || true
-            docker build -t bun-websocket -f docker/Dockerfile.websocket .
+            docker build -t bun-websocket -f docker/Dockerfile.ws .
             docker run -d -p 4000:4000 --name bun-websocket bun-websocket
