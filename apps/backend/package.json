@@ -6,6 +6,11 @@
   "devDependencies": {
     "@types/bun": "latest"
   },
+  "scripts": {
+  "start:backend": "bun run apps/backend/index.ts",
+  "db:generate": "prisma generate --schema=packages/db/schema.prisma"
+},
+
   "peerDependencies": {
     "typescript": "^5"
   },
